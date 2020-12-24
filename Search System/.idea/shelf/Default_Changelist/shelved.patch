@@ -1,0 +1,173 @@
+Index: dashboard/templates/dashboard/result.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'dashboard/header.html' %}\n{% block content  %}\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n  <script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js\"></script>\n</head>\n<body>\n<br>\n<div class=\"container\">\n   <div class=\"row\">\n      <div class=\"col\"></div>\n      <div class=\"col-sm-8\">\n         <form action=\"getData\" method=\"get\">\n\n            <input class=\"form-control\" type=\"text\" placeholder=\"Search\" id=\"q\" value=\"{{ search_term }}\" name=\"q\" aria-label=\"q\" required>\n            <div class=\"form-row\">\n               <div class=\"form-group col-md-4\">\n                  <label for=\"language\">Language</label>\n                  <select id=\"language\" class=\"form-control\" name=\"language\" >\n                     <option selected>{{ selected_lang }}</option>\n                     {% for lang in language %}\n                     <option value=\"{{ lang }}\">{{ lang }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n               <div class=\"form-group col-md-4\">\n                  <label for=\"country\">Country</label>\n                  <select id=\"country\" class=\"form-control\" name=\"country\">\n                     <option selected>{{ selected_country }}</option>\n                     {% for country in Country %}\n                     <option value=\"{{ country }}\">{{ country }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n               <div class=\"form-group col-md-4\">\n                  <label for=\"topic\">Topic</label>\n                  <select id=\"topic\" class=\"form-control\" name=\"topic\">\n                     <option selected>Choose...</option>\n                     {% for topic in topics %}\n                     <option value=\"{{ topic }}\">{{ topic }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n            </div>\n            <button type=\"submit\" class=\"btn btn-primary\">Search</button>\n         </form>\n      </div>\n      <div class=\"col\"></div>\n   </div>\n   <div/>\n   </div>\n    <div class=\"row\">\n      <div class=\"col\">\n         {% for t in paginateTweets %}\n         <blockquote class=\"twitter-tweet\">\n            <p lang=\"en\" dir=\"ltr\">\n               <a href=\"https://twitter.com/{{name}}/status/{{t.id}}\">\n               </a>\n         </blockquote>\n         <script async src=\"https://platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>\n         {% endfor %}\n          <div>\n\n            {% if paginateTweets.has_other_pages %}\n                <nav aria-label=\"...\">\n  <ul class=\"pagination\">\n    {% if paginateTweets.has_previous %}\n      <li class=\"page-item\"><a class=\"page-link\" href=\"?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&topic=Choose...&page={{ paginateTweets.previous_page_number }}\">Previous</a></li>\n    {% else %}\n      <li class=\"page-item disabled\" tabindex=\"-1\">Previous</li>\n    {% endif %}\n\n      <li class=\"page-item\"><a class=\"page-link\" href=\"?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&topic=Choose...&page=1\">1</a></li>\n      <li class=\"page-item\"><a class=\"page-link\" href=\"?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&topic=Choose...&page=2\">2</a></li>\n\n    {% if paginateTweets.has_next %}\n      <li class=\"page-item\"><a class=\"page-link\" href=\"?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&topic=Choose...&page={{ paginateTweets.next_page_number }}\">Next</a></li>\n    {% else %}\n      <li class=\"page-item disabled\"><span>&raquo;</span></li>\n    {% endif %}\n  </ul>\n                </nav>\n{% endif %}\n        </div>\n      </div>\n  <div/>\n  <h3 align=\"center\">Analytics</h3>\n  <div class=\"col\"></div>\n  {{ countries|json_script:\"country_test\" }}\n  {{ tweetcount|json_script:\"count_test\" }}\n  <canvas id=\"pie-chart\" width=\"500\"  height=\"350\"></canvas>\n  <script id=\"country_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"count_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script>\n    setTimeout(function(){\n        var Countries = JSON.parse(document.getElementById('country_test').textContent);\n        var Tweetcount = JSON.parse(document.getElementById('count_test').textContent);\n        //Pie chart\n      new Chart(document.getElementById(\"pie-chart\"), {\n    type: 'pie',\n    data: {\n      labels: Countries,\n      datasets: [{\n        label: \"Tweet count\",\n        backgroundColor: [\"#3e95cd\", \"#8e5ea2\",\"#3cba9f\",\"#e8c3b9\",\"#c45850\"],\n        data: Tweetcount\n      }]\n    },\n    options: {\n      title: {\n        display: true,\n        text: 'Tweet count by country'\n      }\n    }\n});\n}, 1000); \n   </script>   \n <br>\n  {{ langs|json_script:\"lang_test\" }}\n  {{ langcount|json_script:\"langcount_test\" }}\n  <canvas id=\"bar-chart\" width=\"500\" height=\"350\"></canvas>\n  <script id=\"lang_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"langcount_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script>\n    setTimeout(function(){\n        var languages = JSON.parse(document.getElementById('lang_test').textContent);\n        var langcount = JSON.parse(document.getElementById('langcount_test').textContent);\n        // Bar chart\n        new Chart(document.getElementById(\"bar-chart\"), {\n            type: 'bar',\n            data: {\n              labels: languages,\n              datasets: [\n                {\n                  label: \"Tweets\",\n                  backgroundColor: [\"#3e95cd\", \"#8e5ea2\",\"#3cba9f\",\"#e8c3b9\",\"#c45850\"],\n                  data: langcount\n                }\n              ]\n            },\n            options: {\n              legend: { display: false },\n              title: {\n                display: true,\n                text: 'Tweet count by Language'\n              }\n            }\n        });\n}, 1000); \n   </script> \n<br>\n  {{ trendhashtags|json_script:\"hashtag_test\" }}\n  {{ trendhashcounts|json_script:\"hashcount_test\" }}\n  <canvas id=\"bar-chart-horizontal\" width=\"500\" height=\"350\"></canvas>\n  <script id=\"hashtag_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"hashcount_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n    <script>\n    setTimeout(function(){\n        var hashtags = JSON.parse(document.getElementById('hashtag_test').textContent);\n        var hashtagcount = JSON.parse(document.getElementById('hashcount_test').textContent);\n        // Horizontal Bar chart\n  new Chart(document.getElementById(\"bar-chart-horizontal\"), {\n      type: 'horizontalBar',\n      data: {\n        labels: hashtags,\n        datasets: [\n          {\n            label: \"Tweets\",\n            backgroundColor: [\"#3e95cd\", \"#8e5ea2\",\"#3cba9f\",\"#e8c3b9\",\"#c45850\",\"#008080\",\"#40E0D0\",\"#FA8072\",\"#DB7093\",\"#87CEFA\"],\n            data: hashtagcount\n          }\n        ]\n      },\n      options: {\n        legend: { display: false },\n        title: {\n          display: true,\n          text: 'Trending Hashtags'\n        }\n      }\n  });\n}, 1000); \n   </script> \n<br>\n  {{ tweetdates|json_script:\"dates_test\" }}\n  {{ india_tweetdatecount|json_script:\"indiacount_test\" }}\n  {{ usa_tweetdatecount|json_script:\"usacount_test\" }}\n  {{ brazil_tweetdatecount|json_script:\"brazilcount_test\" }}\n<canvas id=\"line-chart\" width=\"500\" height=\"350\"></canvas>\n  <script id=\"dates_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"indiacount_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"usacount_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n  <script id=\"brazilcount_test\" type=\"application/json\">{\"hello\": \"world\"}</script>\n<script>\n  setTimeout(function(){\n        var tweetdates = JSON.parse(document.getElementById('dates_test').textContent);\n        var india_tweetdatecount = JSON.parse(document.getElementById('indiacount_test').textContent);\n        var usa_tweetdatecount = JSON.parse(document.getElementById('usacount_test').textContent);\n        var brazil_tweetdatecount = JSON.parse(document.getElementById('brazilcount_test').textContent);\nnew Chart(document.getElementById(\"line-chart\"), {\n  type: 'line',\n  data: {\n    labels: tweetdates,\n    datasets: [{ \n        data: india_tweetdatecount,\n        label: \"India\",\n        borderColor: \"#3e95cd\",\n        fill: false\n      }, { \n        data: usa_tweetdatecount,\n        label: \"USA\",\n        borderColor: \"#8e5ea2\",\n        fill: false\n      }, { \n        data: brazil_tweetdatecount,\n        label: \"Brazil\",\n        borderColor: \"#FA8072\",\n        fill: false\n      }\n    ]\n  },\n  options: {\n    title: {\n      display: true,\n      text: 'Tweet count by dates'\n    }\n  }\n});\n}, 1000); \n</script>\n</div>\n</div>\n</body>\n\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- dashboard/templates/dashboard/result.html	(date 1574719648000)
++++ dashboard/templates/dashboard/result.html	(date 1575334950667)
+@@ -5,8 +5,12 @@
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
++<style>
++
++
++</style>
+ </head>
+-<body>
++<br>
+ <br>
+ <div class="container">
+    <div class="row">
+@@ -51,6 +55,11 @@
+    </div>
+    <div/>
+    </div>
++
++{% if tweet_status %}
++
++
++
+     <div class="row">
+       <div class="col">
+          {% for t in paginateTweets %}
+@@ -60,6 +69,9 @@
+                </a>
+          </blockquote>
+          <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
++
++
++
+          {% endfor %}
+           <div>
+ 
+@@ -231,7 +243,19 @@
+ }, 1000); 
+ </script>
+ </div>
++
++
+ </div>
++
++
++ {% else %}
++
++    </br>
++    No results containing all your search terms were found.
++    </br>
++    Your search - {{ search_term }} - did not match any documents.
++
++{% endif %}
+ </body>
+ 
+ {% endblock %}
+\ No newline at end of file
+Index: dashboard/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.shortcuts import render\nfrom django.http import HttpResponse\nfrom urllib.request import urlopen\nimport json\nfrom collections import defaultdict\nfrom urllib.parse import quote\nfrom collections import Counter\nfrom dateutil import parser\nimport operator\nfrom django.utils.datastructures import MultiValueDictKeyError\nfrom django.core.paginator import Paginator\n# Create your views here.\n\n'''\ndef home(request):\n    return HttpResponse('<h1>SOUL</h1>')\n'''\n\n\ndef home(request):\n    return render(request, 'dashboard/dashboard.html', {'name': 'Goutham','search_term':\"search\",'language':[\"English\",\"Hindi\",\"Portugese\"],'Country':[\"India\",\"USA\",\"Brazil\"]})\n\n\nsearch = \"\"\nlang = \"\"\ncout = \"\"\n\n\ndef getData(request):\n\n    try:\n        searchText = request.GET['q']\n        language = request.GET['language']\n        country = request.GET['country']\n        search = searchText\n        lang = language\n        cout = country\n    except MultiValueDictKeyError:\n        searchText = search\n        language = lang\n        country = cout\n    q = quote(searchText)\n    language=quote(language)\n    langdict = defaultdict(lambda : 'undefined')\n    langdict.update({\n        'en': 'English', 'ar': 'Arabic', 'bn': 'Bengali', 'cs': 'Czech', 'da': 'Danish', 'de': 'German', 'el': 'Greek',\n        'es': 'Spanish', 'fa': 'Persian','fi':'Finnish','fil':'Filipino','fr':'French','he':'Hebrew','hi':'Hindi','hu':'Hungarian','id':'Indonesian','it':'Italian','ja':'Japanese','ko':'Korean','msa':'Malay','nl':'Dutch','no':'Norwegian','pl':'Polish','pt':'Portuguese','ro':'Romanian','ru':'Russian','sv':'Swedish','th':'Thai','tr':'Turkish','uk':'Ukrainian','ur':'Urdu','vi':'Vietnamese','zh-cn':'Chinese','zh-tw':'Chinese',\"und\":\"Undefined\",\"in\":\"Hindi\"\n    })\n\n    #langdict= {'en':'English','ar':'Arabic','bn':'Bengali','cs':'Czech','da':'Danish','de':'German','el':'Greek','es':'Spanish','fa':'Persian','fi':'Finnish','fil':'Filipino','fr':'French','he':'Hebrew','hi':'Hindi','hu':'Hungarian','id':'Indonesian','it':'Italian','ja':'Japanese','ko':'Korean','msa':'Malay','nl':'Dutch','no':'Norwegian','pl':'Polish','pt':'Portuguese','ro':'Romanian','ru':'Russian','sv':'Swedish','th':'Thai','tr':'Turkish','uk':'Ukrainian','ur':'Urdu','vi':'Vietnamese','zh-cn':'Chinese','zh-tw':'Chinese',\"und\":\"Undefined\",\"in\":\"Hindi\"}\n    for code, value in langdict.items():    # for name, age in dictionary.iteritems():  (for Python 2.x)\n        if language == value:\n            lang=code\n            break\n        else:\n            lang=\"Choose..\"\n    if lang in ['en','hi','pt']:\n        lang_filter='%20AND%20'+'lang%3A('+lang+')'\n    else:\n        lang_filter=\"\"\n\n    if country in ['India','USA','Brazil']:\n        country_filter='%20AND%20'+'country%3A('+country+')'\n    else:\n        country_filter=\"Choose...\"\n    #place=quote(place)\n    url = 'http://18.223.109.186:8983/solr/IRF19P1/select?q=(text_en%3A('+q+')%20OR%20'+'text_hi%3A('+q+')%20OR%20'+'text_pt%3A('+q+')%20OR%20'+'full_text%3A('+q+'))'+lang_filter+country_filter+'&wt=json&indent=true&rows=500'\n    data = urlopen(url)\n    tweets = json.load(data)['response']['docs']\n    cnt = Counter()\n    cnt1 = Counter()\n    cnt2 = Counter()\n    cnt3 = Counter()\n    cnt4 = {\"India\":Counter(),\"USA\":Counter(),\"Brazil\":Counter()}\n    for d in tweets:\n        v1 = d['country'][0]\n        v2 = d['lang'][0]\n        if 'hashtags' in d:\n            for v3 in d['hashtags']:\n                cnt3[v3]+=1\n        v4=str(parser.parse(d['tweet_date'][0]).date())\n        if v1==\"India\": cnt4[\"India\"][v4]+=1 \n        else: cnt4[\"India\"][v4]+=0\n        if v1==\"USA\": cnt4[\"USA\"][v4]+=1  \n        else: cnt4[\"USA\"][v4]+=0\n        if v1==\"Brazil\": cnt4[\"Brazil\"][v4]+=1 \n        else: cnt4[\"Brazil\"][v4]+=0\n        cnt1[v1]+=1\n        cnt2[v2]+=1\n    tweetcount = list(cnt1.values())\n\n    langcount = list(cnt2.values())\n\n    countries = list(cnt1.keys())\n\n    languages = list(cnt2.keys())\n\n    for i in range(len(languages)):\n        languages[i]=langdict[languages[i]]\n    t = sorted(cnt3.items(), key=lambda x:-x[1])[:10]\n    hashtagcount=[b for a,b in t]\n    hashtags=[a for a,b in t]\n\n    k1=sorted(cnt4[\"India\"].items(), key=operator.itemgetter(0))\n    k2=sorted(cnt4[\"USA\"].items(), key=operator.itemgetter(0))\n    k3=sorted(cnt4[\"Brazil\"].items(), key=operator.itemgetter(0))\n\n    tweetdatecount={}\n    tweetdates=[a for a,b in k1]\n    tweetdatecount[\"India\"]=[b for a,b in k1]\n    tweetdatecount[\"USA\"]=[b for a,b in k2]\n    tweetdatecount[\"Brazil\"]=[b for a,b in k3]\n    name = \"\"\n\n    if len(tweets) >0:\n        name = tweets[0]['user.screen_name'][0]\n\n        paginator = Paginator(tweets, 20)\n        page = request.GET.get('page')\n        paginateTweets = paginator.get_page(page)\n    my_dict={'tweets': tweets , 'name': name,'search_term':q,'selected_lang':language,'selected_country':country,'language':[\"Choose..\",\"English\",\"Hindi\",\"Portugese\"],\n    'Country':[\"Choose..\",\"India\",\"USA\",\"Brazil\"],'countries':countries,\n    'tweetcount':tweetcount,\"langs\":languages,\n    \"langcount\":langcount,\"trendhashtags\":hashtags,\n    \"trendhashcounts\":hashtagcount,\"tweetdates\":tweetdates,\"india_tweetdatecount\":tweetdatecount[\"India\"],\n   \"usa_tweetdatecount\":tweetdatecount[\"USA\"],\"brazil_tweetdatecount\":tweetdatecount[\"Brazil\"], 'paginateTweets':paginateTweets }\n    return render(request, 'dashboard/result.html', my_dict)\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- dashboard/views.py	(date 1574719648000)
++++ dashboard/views.py	(date 1575334562295)
+@@ -59,7 +59,7 @@
+     else:
+         lang_filter=""
+ 
+-    if country in ['India','USA','Brazil']:
++    if country in ['India', 'USA', 'Brazil']:
+         country_filter='%20AND%20'+'country%3A('+country+')'
+     else:
+         country_filter="Choose..."
+@@ -111,8 +111,12 @@
+     tweetdatecount["USA"]=[b for a,b in k2]
+     tweetdatecount["Brazil"]=[b for a,b in k3]
+     name = ""
+-
+-    if len(tweets) >0:
++    tweet_status = False
++    paginator = Paginator(tweets, 20)
++    page = request.GET.get('page')
++    paginateTweets = paginator.get_page(page)
++    if len(tweets) > 0 :
++        tweet_status = True
+         name = tweets[0]['user.screen_name'][0]
+ 
+         paginator = Paginator(tweets, 20)
+@@ -123,7 +127,7 @@
+     'tweetcount':tweetcount,"langs":languages,
+     "langcount":langcount,"trendhashtags":hashtags,
+     "trendhashcounts":hashtagcount,"tweetdates":tweetdates,"india_tweetdatecount":tweetdatecount["India"],
+-   "usa_tweetdatecount":tweetdatecount["USA"],"brazil_tweetdatecount":tweetdatecount["Brazil"], 'paginateTweets':paginateTweets }
++   "usa_tweetdatecount":tweetdatecount["USA"],"brazil_tweetdatecount":tweetdatecount["Brazil"], 'paginateTweets':paginateTweets, 'tweet_status': tweet_status }
+     return render(request, 'dashboard/result.html', my_dict)
+ 
+ 
+Index: dashboard/templates/dashboard/dashboard.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{% extends 'dashboard/header.html' %}}\n{% block content %}\n<div class=\"container\" id=\"search\">\n   </br>\n   <div class=\"row\">\n      <div class=\"col-sm-2\"></div>\n      <div class=\"col-sm-8\">\n         <form action=\"getData\" method=\"get\">\n\n            <input class=\"form-control\" type=\"text\" placeholder=\"Search\" id=\"q\" name=\"q\" aria-label=\"q\" required>\n            <div class=\"form-row\">\n               <div class=\"form-group col-md-4\">\n                  <label for=\"language\">Language</label>\n                  <select id=\"language\" class=\"form-control\" name=\"language\" >\n                     <option selected>Choose...</option>\n                     {% for lang in language %}\n                     <option value=\"{{ lang }}\">{{ lang }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n               <div class=\"form-group col-md-4\">\n                  <label for=\"country\">Country</label>\n                  <select id=\"country\" class=\"form-control\" name=\"country\">\n                     <option selected>Choose...</option>\n                     {% for country in Country %}\n                     <option value=\"{{ country }}\">{{ country }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n               <div class=\"form-group col-md-4\">\n                  <label for=\"topic\">Topic</label>\n                  <select id=\"topic\" class=\"form-control\" name=\"topic\">\n                     <option selected>Choose...</option>\n                     {% for topic in topics %}\n                     <option value=\"{{ topic }}\">{{ topic }}</option>\n                     {% endfor %}\n                  </select>\n               </div>\n            </div>\n            <button type=\"submit\" class=\"btn btn-primary\">Search</button>\n         </form>\n      </div>\n   </div>\n   <div class=\"col-sm-2\"></div>\n</div>\n{% endblock %}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- dashboard/templates/dashboard/dashboard.html	(date 1574719648000)
++++ dashboard/templates/dashboard/dashboard.html	(date 1575332833438)
+@@ -8,6 +8,7 @@
+          <form action="getData" method="get">
+ 
+             <input class="form-control" type="text" placeholder="Search" id="q" name="q" aria-label="q" required>
++
+             <div class="form-row">
+                <div class="form-group col-md-4">
+                   <label for="language">Language</label>
+@@ -18,6 +19,7 @@
+                      {% endfor %}
+                   </select>
+                </div>
++
+                <div class="form-group col-md-4">
+                   <label for="country">Country</label>
+                   <select id="country" class="form-control" name="country">
+@@ -36,6 +38,7 @@
+                      {% endfor %}
+                   </select>
+                </div>
++
+             </div>
+             <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+Index: dashboard/templates/dashboard/header.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>SOUL</title>\n    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css\" integrity=\"sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T\" crossorigin=\"anonymous\">\n</head>\n<body>\n\n<nav class=\"navbar navbar-expand-sm bg-dark navbar-dark\">\n  <a class=\"navbar-brand\" href=\"#\">Soul</a>\n  <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapsibleNavbar\">\n    <span class=\"navbar-toggler-icon\"></span>\n  </button>\n  <div class=\"collapse navbar-collapse\" id=\"collapsibleNavbar\">\n    <ul class=\"navbar-nav\">\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\">Dashboard</a>\n      </li>\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\">Link</a>\n      </li>\n\n    </ul>\n  </div>\n</nav>\n\n{% block content %}\n{% endblock %}\n\n</body>\n</html>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- dashboard/templates/dashboard/header.html	(date 1574719648000)
++++ dashboard/templates/dashboard/header.html	(date 1575332833443)
+@@ -8,18 +8,17 @@
+ <body>
+ 
+ <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+-  <a class="navbar-brand" href="#">Soul</a>
++  <a class="navbar-brand" href="http://127.0.0.1:8000/">Soul</a>
+   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+     <span class="navbar-toggler-icon"></span>
+   </button>
+   <div class="collapse navbar-collapse" id="collapsibleNavbar">
+-    <ul class="navbar-nav">
++    <ul class="navbar-nav"><!--
+       <li class="nav-item">
+         <a class="nav-link" href="#">Dashboard</a>
+       </li>
+-      <li class="nav-item">
+-        <a class="nav-link" href="#">Link</a>
+-      </li>
++      -->
++
+ 
+     </ul>
+   </div>

@@ -1,0 +1,354 @@
+{% extends 'dashboard/header.html' %}
+{% block content  %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+</head>
+<style type="text/css">
+  body{
+    background-color: #f7f7f5;
+
+  }
+  .search_fix.col-sm-8{
+    margin-top:49px; 
+    background-color: #f7f7f5;
+    border-radius: 5px;
+    position: fixed;
+    z-index: 1;
+  }
+  .tweets_fix{
+    padding-top: 175px;
+  }
+</style>
+<body>
+<br>
+<div class="container">
+   <div class="row">
+      <div class="col"></div>
+     
+      <div class="search_fix col-sm-8">
+         <form action="getData" method="get">
+          <div class="form-row">
+            <div style=" display: inline-block;width: 50%;margin-left: 220px">
+            <input class="form-control" type="text" placeholder="Enter query.." id="q" value="{{ search_term }}" name="q" aria-label="q" required>
+            </div>
+            <div >
+            <button type="submit" class="btn btn-primary"style=" display: inline-block; background-color: #3cba9f;border: none;color: #1c1c1c;width: 100%;font-size: 17px;">Search</button>
+          </div>
+        </div>
+            <div class="form-row" style="width: 59%;margin-left: 210px">
+               <div class="form-group col-md-4"style="color: black;text-align: center;">
+                  <label for="language">Language</label>
+                  <select id="language" class="form-control" name="language" >
+                     <option selected>{{ selected_lang }}</option>
+                     {% for lang in language %}
+                     <option value="{{ lang }}">{{ lang }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+               <div class="form-group col-md-4"style="color: black;text-align: center;">
+                  <label for="country">Country</label>
+                  <select id="country" class="form-control" name="country">
+                     <option selected>{{ selected_country }}</option>
+                     {% for country in Country %}
+                     <option value="{{ country }}">{{ country }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+               <div class="form-group col-md-4"style="color: black;text-align: center;">
+                  <label for="ver_status">Verified</label>
+                  <select id="ver_status" class="form-control" name="ver_status">
+                     <option selected>{{ selected_ver_status }}</option>
+                     {% for ver_status in ver_statuses %}
+                     <option value="{{ ver_status }}">{{ ver_status }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+            </div>
+         </form>
+      </div>
+    
+      <div class="col"></div>
+   </div>
+   <div/>
+   </div>
+
+{% if tweet_status %}
+    <div class="tweets_fix">
+      <p>Number of tweets retrieved: {{ countOfTweets }} </p>
+    <div class="row">
+      <div class="col">
+         {% for t in paginateTweets %}
+         <blockquote class="twitter-tweet" style="background-color: #f0f0f0">
+            <p lang="en" dir="ltr">
+               <a href="https://twitter.com/{{name}}/status/{{t.id}}">
+               </a>
+         </blockquote>
+         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+
+         {% endfor %}
+          <div>
+
+            {% if paginateTweets.has_other_pages %}
+                <nav aria-label="...">
+  <ul class="pagination">
+    {% if paginateTweets.has_previous %}
+      <li class="page-item"><a class="page-link" href="?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&ver_status=Any&page={{ paginateTweets.previous_page_number }}">Previous</a></li>
+    {% else %}
+      <li class="page-item disabled">
+      <a class="page-link" tabindex="-1">Previous</a>
+      </li>
+    {% endif %}
+
+      <li class="page-item"><a class="page-link" href="?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&ver_status=Any&page=1">1</a>
+      <li class="page-item active"></li>
+      <li class="page-item"><a class="page-link" href="?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&ver_status=Any&page=2">2</a></li>
+
+    {% if paginateTweets.has_next %}
+      <li class="page-item"><a class="page-link" href="?q={{search_term}}&language={{ selected_lang }}&country={{ selected_country }}&ver_status=Any&page={{ paginateTweets.next_page_number }}">Next</a></li>
+    {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+                </nav>
+{% endif %}
+        </div>
+      </div>
+  <div/>
+  <style type="text/css">
+    div.col1{
+      width:500px;
+      height:680px;
+      overflow: auto;
+      position: fixed;
+      right:0;
+      border:4px;
+      border-style: solid;
+      border-color: #ededed;
+      left:1100px;
+      padding-right: 10px;
+      padding-left: 10px;
+    }
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #adadad; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #b30000; 
+}
+  </style>
+
+  <div class="col1">
+    <h3 align="center" style="color: black;">Analytics</h3>
+  {{ countries|json_script:"country_test" }}
+  {{ tweetcount|json_script:"count_test" }}
+  <canvas id="pie-chart" width="500"  height="325"></canvas>
+  <script id="country_test" type="application/json">{"hello": "world"}</script>
+  <script id="count_test" type="application/json">{"hello": "world"}</script>
+  <script>
+    setTimeout(function(){
+        var Countries = JSON.parse(document.getElementById('country_test').textContent);
+        var Tweetcount = JSON.parse(document.getElementById('count_test').textContent);
+        //Pie chart
+      new Chart(document.getElementById("pie-chart"), {
+    type: 'pie',
+    data: {
+      labels: Countries,
+      datasets: [{
+        label: "Tweet count",
+        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+        data: Tweetcount
+      }]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Tweet count by country'
+      }
+    }
+});
+}, 1000);
+   </script>
+ <br>
+  {{ langs|json_script:"lang_test" }}
+  {{ langcount|json_script:"langcount_test" }}
+  <canvas id="bar-chart" width="500" height="325"></canvas>
+  <script id="lang_test" type="application/json">{"hello": "world"}</script>
+  <script id="langcount_test" type="application/json">{"hello": "world"}</script>
+  <script>
+    setTimeout(function(){
+        var languages = JSON.parse(document.getElementById('lang_test').textContent);
+        var langcount = JSON.parse(document.getElementById('langcount_test').textContent);
+        // Bar chart
+        Chart.defaults.global.defaultFontColor = '#000000';
+        new Chart(document.getElementById("bar-chart"), {
+            type: 'bar',
+            data: {
+              labels: languages,
+              datasets: [
+                {
+                  label: "Tweets",
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                  data: langcount
+                }
+              ]
+            },
+            options: {
+              legend: { display: false,fontColor: 'red' },
+              title: {
+                display: true,
+                text: 'Tweet count by Language'
+              }
+            }
+        });
+}, 1000);
+   </script>
+<br>
+  {{ trendhashtags|json_script:"hashtag_test" }}
+  {{ trendhashcounts|json_script:"hashcount_test" }}
+  <canvas id="bar-chart-horizontal" width="500" height="325"></canvas>
+  <script id="hashtag_test" type="application/json">{"hello": "world"}</script>
+  <script id="hashcount_test" type="application/json">{"hello": "world"}</script>
+    <script>
+    setTimeout(function(){
+        var hashtags = JSON.parse(document.getElementById('hashtag_test').textContent);
+        var hashtagcount = JSON.parse(document.getElementById('hashcount_test').textContent);
+        // Horizontal Bar chart
+  new Chart(document.getElementById("bar-chart-horizontal"), {
+      type: 'horizontalBar',
+      data: {
+        labels: hashtags,
+        datasets: [
+          {
+            label: "Tweets",
+            backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#008080","#40E0D0","#FA8072","#DB7093","#87CEFA"],
+            data: hashtagcount
+          }
+        ]
+      },
+      options: {
+        legend: { display: false },
+        title: {
+          display: true,
+          text: 'Trending Hashtags'
+        }
+      }
+  });
+}, 1000);
+   </script>
+<br>
+  {{ tweetdates|json_script:"dates_test" }}
+  {{ india_tweetdatecount|json_script:"indiacount_test" }}
+  {{ usa_tweetdatecount|json_script:"usacount_test" }}
+  {{ brazil_tweetdatecount|json_script:"brazilcount_test" }}
+<canvas id="line-chart" width="500" height="325"></canvas>
+  <script id="dates_test" type="application/json">{"hello": "world"}</script>
+  <script id="indiacount_test" type="application/json">{"hello": "world"}</script>
+  <script id="usacount_test" type="application/json">{"hello": "world"}</script>
+  <script id="brazilcount_test" type="application/json">{"hello": "world"}</script>
+<script>
+  setTimeout(function(){
+        var tweetdates = JSON.parse(document.getElementById('dates_test').textContent);
+        var india_tweetdatecount = JSON.parse(document.getElementById('indiacount_test').textContent);
+        var usa_tweetdatecount = JSON.parse(document.getElementById('usacount_test').textContent);
+        var brazil_tweetdatecount = JSON.parse(document.getElementById('brazilcount_test').textContent);
+new Chart(document.getElementById("line-chart"), {
+  type: 'line',
+  data: {
+    labels: tweetdates,
+    datasets: [{ 
+        data: india_tweetdatecount,
+        label: "India",
+        borderColor: "#3e95cd",
+        fill: false
+      }, { 
+        data: usa_tweetdatecount,
+        label: "USA",
+        borderColor: "#8e5ea2",
+        fill: false
+      }, { 
+        data: brazil_tweetdatecount,
+        label: "Brazil",
+        borderColor: "#FA8072",
+        fill: false
+      }
+    ]
+  },
+  options: {
+    title: {
+      display: true,
+      text: 'Tweet count by dates'
+    }
+  }
+});
+}, 1000);
+</script>
+<br>
+  {{ sentiments|json_script:"sentiments_test" }}
+  {{ sentimentcounts|json_script:"sentimentcounts_test" }}
+  {{ sentimentcolors|json_script:"sentimentcolors_test" }}
+  <canvas id="doughnut-chart" width="500" height="325"></canvas>
+  <script id="sentiments_test" type="application/json">{"hello": "world"}</script>
+  <script id="sentimentcounts_test" type="application/json">{"hello": "world"}</script>
+  <script id="sentimentcolors_test" type="application/json">{"hello": "world"}</script>
+ <script>
+  setTimeout(function(){
+        var sentiments = JSON.parse(document.getElementById('sentiments_test').textContent);
+        var sentimentcounts = JSON.parse(document.getElementById('sentimentcounts_test').textContent);
+        var sentimentcolors = JSON.parse(document.getElementById('sentimentcolors_test').textContent);
+new Chart(document.getElementById("doughnut-chart"), {
+    type: 'doughnut',
+    data: {
+      labels: sentiments,
+      datasets: [
+        {
+          label: "Tweets",
+          backgroundColor: sentimentcolors,
+          data: sentimentcounts
+        }
+      ]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Sentiment Analysis'
+      }
+    }
+});
+}, 1000); 
+</script> 
+</div>
+</div>
+
+</div>
+
+
+ {% else %}
+
+    </br>
+    No results containing all your search terms were found.
+    </br>
+    Your search - {{ search_term }} - did not match any documents.
+
+{% endif %}
+</body>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'dashboard/header.html' %}}
+{% block content %}
+<div class="container" id="search">
+   <style type="text/css">
+      .col-sm-8{
+         padding: 50px;
+             margin: 0;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+      }
+   </style>
+   </br>
+   <div class="row">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-8">
+         <form action="getData" method="get">
+            <div class="form-row">
+            <div style=" display: inline-block;width: 76%;margin-left: 110px">
+            <input class="form-control" type="text" placeholder="Enter query.." id="q"  name="q" aria-label="q" required>
+            </div>
+          <div >
+            <button type="submit" class="btn btn-primary"style=" display: inline-block; background-color: #3cba9f;border: none;color: #1c1c1c;width: 100%;font-size: 17px;">Search</button>
+          </div>
+        </div>
+     </br>
+            <div class="form-row" style="width: 85%;margin-left: 100px">
+               <div class="form-group col-md-4">
+                  <label for="language">Language</label>
+                  <select id="language" class="form-control" name="language" >
+                     <option selected>Any</option>
+                     {% for lang in language %}
+                     <option value="{{ lang }}">{{ lang }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group col-md-4">
+                  <label for="country">Country</label>
+                  <select id="country" class="form-control" name="country">
+                     <option selected>Any</option>
+                     {% for country in Country %}
+                     <option value="{{ country }}">{{ country }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+               <div class="form-group col-md-4">
+                  <label for="ver_status">Verified</label>
+                  <select id="ver_status" class="form-control" name="ver_status">
+                     <option selected>Any</option>
+                     {% for ver_status in ver_statuses %}
+                     <option value="{{ ver_status }}">{{ ver_status }}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+            </div>
+         </form>
+      </div>
+   </div>
+   <div class="col-sm-2"></div>
+</div>
+{% endblock %}
